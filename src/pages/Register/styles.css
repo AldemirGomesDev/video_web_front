@@ -1,0 +1,74 @@
+.register-container {
+    width: 100%;
+    max-width: 1120px;
+    height: 100vh;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.register-container .content {
+    width: 100%;
+    padding: 96px;
+    background: #f0f0f5;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.register-container .content section {
+    width: 100%;
+    max-width: 380px;
+}
+
+.register-container .content section h1 {
+    margin: 20px 0 10px;
+    font-size: 32px;
+    text-align: left;
+}
+
+.register-container .content section p {
+    font-size: 18px;
+    color: #737380;
+    line-height: 32px;
+    text-align: left;
+}
+
+.register-container .content form {
+    width: 100%;
+    max-width: 450px;
+}
+
+@media screen and (max-width: 630px) and (orientation:landscape) {
+    .register-container {
+        float: left;
+        overflow-y: auto;
+        height: 700px;
+    }
+    .register-container .content {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 32px;
+    }
+    .register-container .content section {
+        margin-bottom: 24px;
+    }
+}
+
+@media screen and (min-width: 300px) and (orientation:portrait) {
+    .register-container .content {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 32px;
+    }
+    .register-container .content section {
+        margin-bottom: 24px;
+    }
+}
