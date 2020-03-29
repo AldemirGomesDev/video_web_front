@@ -16,6 +16,13 @@
 
 .logon-container section.form form {
     margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    align-content: center;
+    align-self: center;
 }
 
 .logon-container section.form form h1 {

@@ -13,13 +13,8 @@ export default function Register() {
                 <section>
                     <img src={logoImg} alt="logo video" />
 
-                    <h1>Cadastro</h1>
-                    <p>Faça seu cadastro, entre na plataforma e cadastre seus vídeos</p>
-
-                    <Link className="back-link" to="/">
-                        <FiArrowLeft size={16} color="#E02041" />
-                        Voltar para o Login
-                    </Link>
+                    <h1>Faça seu Cadastro</h1>
+                    {/*<p>Faça seu cadastro, entre na plataforma e cadastre seus vídeos</p >*/}
                 </section>
 
                 <form>
@@ -28,6 +23,10 @@ export default function Register() {
                     <input type="password" placeholder="Senha" />
 
                     <button className="button" type="submit">Cadastrar</button>
+                    <Link className="back-link" to="/">
+                        <FiArrowLeft size={16} color="#E02041" />
+                        Voltar para o Login
+                    </Link>
                 </form>
             </div>
         </div>

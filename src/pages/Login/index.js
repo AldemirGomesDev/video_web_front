@@ -20,7 +20,7 @@ export default function Login() {
 
                     <Link className="back-link" to="/register">
                         <FiLogIn size={16} color="#E02041" />
-                        Não tenho Link conta
+                        Criar nova conta
                     </Link>
                 </form>
             </section>
