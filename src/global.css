@@ -6,6 +6,15 @@
     box-sizing: border-box;
 }
 
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
 body {
     font: 400 14px Roboto, sans-serif;
     background: #f0f0f5;
@@ -76,4 +85,6 @@ form input:focus {
 
 .back-link:hover {
     opacity: 0.8;
+    text-decoration: none;
+    color: #41414d;
 }
