@@ -30,6 +30,10 @@
     margin-bottom: 32px;
 }
 
+.circular-progress {
+    margin-top: 16px;
+}
+
 @media screen and (max-width: 630px) and (orientation:landscape) {
     .logon-container {
         float: left;

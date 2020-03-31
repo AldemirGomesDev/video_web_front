@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { Link, useHistory } from 'react-router-dom';
+import Modal from 'react-bootstrap/Modal';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import api from '../../services/api';
 import './styles.css';
@@ -12,6 +14,25 @@ export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [islogged, setIsLogged] = useState(false);
+    const [isLoading, setLoading] = useState(false);
+
+    const [titleModal, setTitleModal] = useState('');
+    const [descriptionModal, setDescriptionModal] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => {
+        setShow(false)
+        setLoading(false);
+        if (isSuccess)
+            history.push('/');
+    };
+    const handleShow = (title, description) => {
+        setTitleModal(title)
+        setDescriptionModal(description)
+        setShow(true)
+    };
 
     const history = useHistory();
 
@@ -27,18 +48,21 @@ export default function Register() {
 
         try {
             if (name == "" || email == "" || password == "") {
-                alert('Campos obrigatório vazios!');
+                setIsSuccess(false);
+                handleShow("Alerta", "Campos obrigatórios vazios");
                 return
 
             }
+            setLoading(true);
             const response = await api.post('users', data);
 
-            alert(`${response.data.message}`);
+            setIsSuccess(true);
+            handleShow("Aviso", `${response.data.message}`);
 
-            history.push('/');
 
         } catch (error) {
-            alert(`Erro no cadastro, tente novamente: ${error}`);
+            setIsSuccess(false);
+            handleShow("Aviso", "Erro no cadastro, tente novamente.");
         }
     }
     return (
@@ -70,13 +94,36 @@ export default function Register() {
                         onChange={e => setPassword(e.target.value)}
                     />
 
-                    <button className="button" type="submit">Cadastrar</button>
+                    <button className="button" type="submit">
+                        {isLoading ?
+                            <CircularProgress
+                                className="circular-progress"
+                                color="inherit"
+                                disableShrink={false}
+                                variant="indeterminate"
+                                size={30}
+                            /> : `Cadastrar`
+                        }
+                    </button>
                     <Link className="back-link" to="/">
                         <FiArrowLeft size={16} color="#E02041" />
                         Voltar para o Login
                     </Link>
                 </form>
             </div>
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{titleModal}</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <p>{descriptionModal}</p>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <button onClick={handleClose} className="btn btn-danger">OK</button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }

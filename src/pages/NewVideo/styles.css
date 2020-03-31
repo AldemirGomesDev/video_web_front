@@ -47,6 +47,10 @@
     align-items: center;
 }
 
+.circular-progress {
+    margin-top: 16px;
+}
+
 @media screen and (max-width: 630px) and (orientation:landscape) {
     .new-video-container {
         float: left;

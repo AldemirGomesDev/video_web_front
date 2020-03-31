@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FiLogIn } from 'react-icons/fi';
 import { Link, useHistory } from 'react-router-dom';
+import Modal from 'react-bootstrap/Modal';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import api from '../../services/api';
 import './styles.css';
@@ -11,6 +13,25 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [islogged, setIsLogged] = useState(true);
+    const [isLoading, setLoading] = useState(false);
+
+    const [titleModal, setTitleModal] = useState('');
+    const [descriptionModal, setDescriptionModal] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => {
+        setShow(false)
+        if (isSuccess)
+            history.push('/home');
+        setLoading(false);
+    };
+    const handleShow = (title, description) => {
+        setTitleModal(title)
+        setDescriptionModal(description)
+        setShow(true)
+    };
 
     const history = useHistory();
 
@@ -25,17 +46,24 @@ export default function Login() {
         };
 
         try {
+            if (email == "" || password == "") {
+                setIsSuccess(false);
+                handleShow("Alerta", "Campos obrigatórios vazios");
+                return
+
+            }
+            setLoading(true);
             const response = await api.post('users/authenticate', data);
 
             localStorage.setItem('userLoggedId', response.data.userLogado.id);
             localStorage.setItem('userLoggedName', response.data.userLogado.name);
             localStorage.setItem('userLoggedToken', response.data.token);
-            alert(`${response.data.message}`);
-
-            history.push('/home');
+            setIsSuccess(true);
+            handleShow("Aviso", `${response.data.message}`);
 
         } catch (error) {
-            alert(`E-mail ou senha incorreto! ${error}`);
+            setIsSuccess(false);
+            handleShow("Aviso", "E-mail ou senha incorreto!");
         }
     }
     return (
@@ -57,7 +85,17 @@ export default function Login() {
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                     />
-                    <button className="button" type="submit">Entrar</button>
+                    <button className="button" type="submit">
+                        {isLoading ?
+                            <CircularProgress
+                                className="circular-progress"
+                                color="inherit"
+                                disableShrink={false}
+                                variant="indeterminate"
+                                size={30}
+                            /> : `Entrar`
+                        }
+                    </button>
 
                     <Link className="back-link" to="/register">
                         <FiLogIn size={16} color="#E02041" />
@@ -66,6 +104,19 @@ export default function Login() {
                 </form>
             </section>
 
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{titleModal}</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <p>{descriptionModal}</p>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <button onClick={handleClose} className="btn btn-danger">OK</button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }

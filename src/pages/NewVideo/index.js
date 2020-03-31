@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { Link, useHistory } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import api from '../../services/api';
 
@@ -15,6 +16,7 @@ export default function NewVideo() {
     const [titleModal, setTitleModal] = useState('');
     const [descriptionModal, setDescriptionModal] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isLoading, setLoading] = useState(false);
 
     const [show, setShow] = useState(false);
 
@@ -22,6 +24,7 @@ export default function NewVideo() {
         setShow(false)
         if (isSuccess)
             history.push('/home');
+        setLoading(false);
     };
     const handleShow = (title, description) => {
         setTitleModal(title)
@@ -49,7 +52,7 @@ export default function NewVideo() {
                 return
 
             }
-
+            setLoading(true);
             const response = await api.post(`users/${userLoggedId}/videos`, data);
             setIsSuccess(true);
             handleShow("Alerta", `${response.data.message}`);
@@ -82,7 +85,17 @@ export default function NewVideo() {
                         onChange={e => setUrl(e.target.value)}
                     />
 
-                    <button className="button" type="submit">Cadastrar</button>
+                    <button className="button" type="submit">
+                        {isLoading ?
+                            <CircularProgress
+                                className="circular-progress"
+                                color="inherit"
+                                disableShrink={false}
+                                variant="indeterminate"
+                                size={30}
+                            /> : `Cadastrar`
+                        }
+                    </button>
                     <Link className="back-link" to="/home">
                         <FiArrowLeft size={16} color="#E02041" />
                         Voltar para o Home
