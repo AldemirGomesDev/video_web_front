@@ -89,6 +89,16 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.circular-progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circular-progress div {
+    margin-top: 2px;
+}
+
 .home-container ul li .react-player {
     margin-top: 20px;
     margin-bottom: 20px;

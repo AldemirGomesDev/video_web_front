@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { Link, useHistory } from 'react-router-dom';
 import { FiPower, FiTrash2 } from 'react-icons/fi';
 import ReactPlayer from "react-player";
@@ -13,14 +14,19 @@ import logoImg from '../../assets/logo.svg'
 export default function Home() {
     const [videos, setVideos] = useState([]);
     const [page, setPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
     const [id, setId] = useState(0);
 
     const [titleModal, setTitleModal] = useState('');
     const [descriptionModal, setDescriptionModal] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const scrollObserve = useRef();
+    const [scrollRadio, setScrollRadio] = useState(null);
+    const [isFinish, setIsFinish] = useState(false);
 
     const [show, setShow] = useState(false);
     const [logoutModalShow, setLogoutModalShow] = useState(false);
+    const [isLoading, setLoading] = useState(false);
 
     const handleLogoutOk = () => {
         setLogoutModalShow(false);
@@ -64,13 +70,46 @@ export default function Home() {
     const userLoggedToken = localStorage.getItem('userLoggedToken');
 
     useEffect(() => {
-        api.get(`users/${userLoggedId}/videos/${page}/5`
+        setLoading(true);
+        setIsFinish(false);
+        intersectionOberver.observe(scrollObserve.current);
+
+        api.get(`users/${userLoggedId}/videos/${currentPage}/5`
         ).then(response => {
 
+            setPage(response.data.page);
             setVideos(response.data.videos);
-            setPage(response.data.currentPage)
+            setCurrentPage(response.data.currentPage);
+            setLoading(false);
         });
+        return () => {
+            intersectionOberver.disconnect();
+        }
     }, [userLoggedToken]);
+
+    useEffect(() => {
+        if (scrollRadio > 0 && videos != "" && !isFinish) {
+            setLoading(true);
+            api.get(`users/${userLoggedId}/videos/${currentPage}/5`
+            ).then(response => {
+                const novosVideos = [...videos];
+                novosVideos.push(...response.data.videos);
+                setVideos(novosVideos);
+                setCurrentPage(response.data.currentPage);
+                setLoading(false);
+
+                if (response.data.videos == '' || response.data.videos == null) {
+                    setIsFinish(true);
+                    console.log('finalizou a busca')
+                }
+            });
+        }
+    }, [scrollRadio]);
+
+    const intersectionOberver = new IntersectionObserver((entries) => {
+        const radio = entries[0].intersectionRatio;
+        setScrollRadio(radio);
+    });
 
     function handleLogout() {
         try {
@@ -97,7 +136,6 @@ export default function Home() {
 
     return (
         <div className="home-container">
-            {console.log(`paginas: ${page}`)}
             <header>
                 <img className="logo" src={logoImg} alt="logo heroes" />
                 <span>Bem vindo, {userLoggedName}</span>
@@ -126,7 +164,7 @@ export default function Home() {
 
                         <div className="text-video">
                             <strong>{video.name}</strong>
-                            <p>Música: Casa do Pai - ft. Daniel Diau. Compositor: Jedson Aguiar</p>
+                            <p>{video.description}</p>
                         </div>
 
                         <button onClick={() => handleShow("Aviso", "Deseja realmente apagar esse vídeo?", video.id)} type="button">
@@ -134,7 +172,20 @@ export default function Home() {
                         </button>
                     </li>
                 ))}
+                <div className="circular-progress">
+                    {isLoading ?
+                        <CircularProgress
+                            color="inherit"
+                            disableShrink={false}
+                            variant="indeterminate"
+                            size={30}
+                        /> : ''
+                    }
+
+                </div>
+
             </ul>
+            <div ref={scrollObserve}></div>
 
             <Modal show={show} onHide={handleCancel}>
                 <Modal.Header closeButton>

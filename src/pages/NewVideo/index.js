@@ -13,6 +13,7 @@ import logoImg from '../../assets/logo.svg'
 export default function NewVideo() {
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
+    const [description, setDescriptionVideo] = useState('');
     const [titleModal, setTitleModal] = useState('');
     const [descriptionModal, setDescriptionModal] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
@@ -42,11 +43,12 @@ export default function NewVideo() {
         const data = {
             name,
             url,
+            description,
         };
-
+        console.log(`data: ${data}`);
         try {
 
-            if (name == "" || url == "") {
+            if (name == "" || url == "" || description == "") {
                 setIsSuccess(false);
                 handleShow("Alerta", "Campos obrigatórios vazios");
                 return
@@ -59,7 +61,7 @@ export default function NewVideo() {
 
         } catch (error) {
             setIsSuccess(false);
-            handleShow("Alerta", 'Erro no cadastro, tente novamente');
+            handleShow("Alerta", 'Erro no cadastro, tente novamente' + error);
         }
     }
 
@@ -83,6 +85,11 @@ export default function NewVideo() {
                         placeholder="URL do Vídeo"
                         value={url}
                         onChange={e => setUrl(e.target.value)}
+                    />
+                    <textarea
+                        placeholder="Descrição"
+                        value={description}
+                        onChange={e => setDescriptionVideo(e.target.value)}
                     />
 
                     <button className="button" type="submit">
