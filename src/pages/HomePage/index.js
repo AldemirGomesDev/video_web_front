@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { Link, useHistory } from 'react-router-dom';
-import { FiPower, FiTrash2 } from 'react-icons/fi';
+import { FiPower, FiTrash2, FiSearch } from 'react-icons/fi';
 import ReactPlayer from "react-player";
 import Modal from 'react-bootstrap/Modal';
 
@@ -16,6 +16,7 @@ export default function Home() {
     const [page, setPage] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
     const [id, setId] = useState(0);
+    const [search, setSearch] = useState('');
 
     const [titleModal, setTitleModal] = useState('');
     const [descriptionModal, setDescriptionModal] = useState('');
@@ -63,6 +64,24 @@ export default function Home() {
         }
     };
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const name = `${search}`;
+
+        api.get(`users/${userLoggedId}/search/0/5`, {
+            params: {
+                name: name
+            }
+        }).then(response => {
+            console.log(`quantidade ${response.data.page}`);
+            setVideos(response.data.videos);
+            setLoading(false);
+            setIsFinish(true);
+        });
+    };
+
     const history = useHistory();
 
     const userLoggedId = localStorage.getItem('userLoggedId');
@@ -70,6 +89,7 @@ export default function Home() {
     const userLoggedToken = localStorage.getItem('userLoggedToken');
 
     useEffect(() => {
+        console.log(`search---------------------------`);
         setLoading(true);
         setIsFinish(false);
         intersectionOberver.observe(scrollObserve.current);
@@ -88,6 +108,7 @@ export default function Home() {
     }, [userLoggedToken]);
 
     useEffect(() => {
+        console.log(`search: ${search}`);
         if (scrollRadio > 0 && videos != "" && !isFinish) {
             setLoading(true);
             api.get(`users/${userLoggedId}/videos/${currentPage}/5`
@@ -104,7 +125,7 @@ export default function Home() {
                 }
             });
         }
-    }, [scrollRadio]);
+    }, [currentPage, isFinish, scrollRadio, search, userLoggedId, videos]);
 
     const intersectionOberver = new IntersectionObserver((entries) => {
         const radio = entries[0].intersectionRatio;
@@ -149,11 +170,20 @@ export default function Home() {
 
             <h1>Vídeos disponíveis</h1>
 
-            <input
-                className="input-search"
-                type="text"
-                placeholder="Procurar"
-            />
+            <form onSubmit={handleSearch} className="form-search">
+                <input
+                    className="input-search"
+                    type="text"
+                    placeholder="Procurar"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                />
+
+                <button type="submit">
+                    <FiSearch size={24} color="#333333" />
+                </button>
+
+            </form>
 
             <ul>
                 {videos.map(video => (

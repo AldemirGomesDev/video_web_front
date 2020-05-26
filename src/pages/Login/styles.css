@@ -34,6 +34,10 @@
     margin-top: 16px;
 }
 
+Alert {
+    width: 100%;
+}
+
 @media screen and (max-width: 630px) and (orientation:landscape) {
     .logon-container {
         float: left;

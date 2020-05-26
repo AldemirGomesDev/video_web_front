@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiLogIn } from 'react-icons/fi';
 import { Link, useHistory } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+import { useAlert } from "react-alert";
+
 import api from '../../services/api';
+import User from '../../models/User';
+import Admin from '../../models/Admin';
+import { isAuthenticated } from '../../services/auth';
 import './styles.css';
 
 import logoImg from '../../assets/logo.svg'
 
 export default function Login() {
+
+    const alert = useAlert();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [islogged, setIsLogged] = useState(true);
@@ -27,14 +35,27 @@ export default function Login() {
             history.push('/home');
         setLoading(false);
     };
-    const handleShow = (title, description) => {
-        setTitleModal(title)
-        setDescriptionModal(description)
-        setShow(true)
+    const handleShow = (title, description, logado) => {
+        
+        if(logado) {
+            alert.success(description);
+            history.push('/home');
+        }else {
+            alert.error(description);
+            // setTitleModal(title)
+            // setDescriptionModal(description)
+            // setShow(true)
+        }
+        setLoading(false);
     };
 
-    const history = useHistory();
+    useEffect(() => {
+        if(isAuthenticated()){
+            history.push('/home');
+        }
+    }, [])
 
+    const history = useHistory();
 
     async function handleAuthenticate(e) {
         e.preventDefault();
@@ -45,25 +66,35 @@ export default function Login() {
             islogged,
         };
 
+        const user = new User('', email, password, islogged)
+        const admin = new Admin('', email, password, islogged, '123456789')
+
         try {
-            if (email == "" || password == "") {
+            if (email === "" || password === "") {
                 setIsSuccess(false);
-                handleShow("Alerta", "Campos obrigatórios vazios");
+                handleShow("Alerta", "Campos obrigatórios vazios", false);
                 return
 
             }
             setLoading(true);
-            const response = await api.post('users/authenticate', data);
+            const response = await api.post('users/authenticate', admin);
 
-            localStorage.setItem('userLoggedId', response.data.userLogado.id);
-            localStorage.setItem('userLoggedName', response.data.userLogado.name);
-            localStorage.setItem('userLoggedToken', response.data.token);
-            setIsSuccess(true);
-            handleShow("Aviso", `${response.data.message}`);
+            if(response.status === 400){
+                setIsSuccess(false);
+                handleShow("Aviso", `${response.data.message}`, false);
+                return
+            }
+            if(response.status  === 200) {
+                setIsSuccess(true)
+                localStorage.setItem('userLoggedId', response.data.userLogado.id);
+                localStorage.setItem('userLoggedName', response.data.userLogado.name);
+                localStorage.setItem('userLoggedToken', response.data.token);
+                handleShow("Aviso", `${response.data.message}`, true);
+            }
 
         } catch (error) {
             setIsSuccess(false);
-            handleShow("Aviso", "E-mail ou senha incorreto!");
+            handleShow("Aviso", "E-mail ou senha incorreto!", false);
         }
     }
     return (
