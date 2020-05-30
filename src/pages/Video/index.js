@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { Link, useHistory } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal'
@@ -10,7 +10,9 @@ import './styles.css';
 
 import logoImg from '../../assets/logo.svg'
 
-export default function NewVideo() {
+export default function NewVideo({match}) {
+    const [idVideo, setidVideo] = useState(0);
+    const [video, setVideo] = useState()
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
     const [description, setDescriptionVideo] = useState('');
@@ -20,6 +22,30 @@ export default function NewVideo() {
     const [isLoading, setLoading] = useState(false);
 
     const [show, setShow] = useState(false);
+
+    useEffect(() => {
+        setidVideo(match.params.id)
+        try {
+
+            api.get(`/users/${match.params.id}/videos`
+            ).then(response => {
+              if (response.data.video !== '' || response.data.video != null) {
+                setVideo(response.data.video);
+                setName(response.data.video.name);
+                setDescriptionVideo(response.data.video.description);
+                setUrl(response.data.video.url);
+              }
+          });
+              
+          } catch (err) {
+              setIsSuccess(false);
+              handleShow("Alerta", "Erro ao apagar vídeo!", 0);
+          }
+    }, [])
+
+    useEffect(() => {
+        
+    }, [idVideo])
 
     const handleClose = () => {
         setShow(false)
@@ -55,9 +81,15 @@ export default function NewVideo() {
 
             }
             setLoading(true);
-            const response = await api.post(`users/${userLoggedId}/videos`, data);
-            setIsSuccess(true);
-            handleShow("Alerta", `${response.data.message}`);
+            if(match.params.id === "0") {
+                const response = await api.post(`users/${userLoggedId}/videos`, data);
+                setIsSuccess(true);
+                handleShow("Alerta", `${response.data.message}`);
+            } else {
+                const response = await api.put(`users/${match.params.id}/videos`, data);
+                setIsSuccess(true);
+                handleShow("Alerta", `${response.data.message}`);
+            }
 
         } catch (error) {
             setIsSuccess(false);
@@ -71,7 +103,7 @@ export default function NewVideo() {
                 <section>
                     <img src={logoImg} alt="logo video" />
 
-                    <h1>Cadastrar novo vídeo</h1>
+                <h1>Cadastrar novo vídeo</h1>
 
                 </section>
 

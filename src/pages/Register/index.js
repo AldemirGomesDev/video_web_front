@@ -5,6 +5,8 @@ import Modal from 'react-bootstrap/Modal';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import api from '../../services/api';
+import User from '../../models/User';
+import Admin from '../../models/Admin';
 import './styles.css';
 
 import logoImg from '../../assets/logo.svg'
@@ -14,6 +16,9 @@ export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [islogged, setIsLogged] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [registration, setRegistration] = useState();
+
     const [isLoading, setLoading] = useState(false);
 
     const [titleModal, setTitleModal] = useState('');
@@ -34,17 +39,26 @@ export default function Register() {
         setShow(true)
     };
 
+    function handleInputChange(event) {
+        const target = event.target;
+        const value = target.name === 'isadmin' ? target.checked : target.value;
+        setIsAdmin(value)
+      }
+
     const history = useHistory();
 
     async function handleRegister(e) {
         e.preventDefault();
 
-        const data = {
-            name,
-            email,
-            password,
-            islogged,
-        };
+        let data = {}
+        const user = new User(name, email, password, islogged, isAdmin);
+        const admin = new Admin(name, email, password, islogged, isAdmin, registration);
+
+        if(isAdmin) {
+            data = admin
+        }else {
+            data = user
+        }
 
         try {
             if (name == "" || email == "" || password == "") {
@@ -93,6 +107,23 @@ export default function Register() {
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                     />
+
+                    <label>
+                        Administrador:
+                        </label>
+                    <input
+                        name="isadmin"
+                        type="checkbox"
+                        checked={isAdmin}
+                        onChange={e => handleInputChange(e)} />
+
+                    {isAdmin ?
+                        <input
+                            placeholder="Matrícula"
+                            value={registration}
+                            onChange={e => setRegistration(e.target.value)}
+                        /> : ''
+                    }
 
                     <button className="button" type="submit">
                         {isLoading ?

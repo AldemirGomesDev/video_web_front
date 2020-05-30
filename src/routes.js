@@ -6,7 +6,8 @@ import { isAuthenticated } from './services/auth';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import HomePage from './pages/HomePage';
-import NewVideo from './pages/NewVideo';
+import Video from './pages/Video';
+import User from './pages/User';
 
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
@@ -29,7 +30,8 @@ const Routes = () => {
                 <Route path="/" exact component={Login} />
                 <Route path="/register" component={Register} />
                 <PrivateRoute path="/home" component={HomePage} />
-                <PrivateRoute path="/video/new" component={NewVideo} />
+                <PrivateRoute path="/video/:id" component={Video} />
+                <PrivateRoute path="/user" component={User} />
             </Switch>
         </BrowserRouter>
     );

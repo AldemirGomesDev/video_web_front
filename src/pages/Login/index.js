@@ -42,9 +42,6 @@ export default function Login() {
             history.push('/home');
         }else {
             alert.error(description);
-            // setTitleModal(title)
-            // setDescriptionModal(description)
-            // setShow(true)
         }
         setLoading(false);
     };
@@ -54,6 +51,7 @@ export default function Login() {
             history.push('/home');
         }
     }, [])
+
 
     const history = useHistory();
 
@@ -70,29 +68,31 @@ export default function Login() {
         const admin = new Admin('', email, password, islogged, '123456789')
 
         try {
-            if (email === "" || password === "") {
+            if (email === "" || password === "" || email === null) {
+                console.log("STATUS 000")
                 setIsSuccess(false);
                 handleShow("Alerta", "Campos obrigatórios vazios", false);
                 return
 
             }
             setLoading(true);
+            
             const response = await api.post('users/authenticate', admin);
-
-            if(response.status === 400){
-                setIsSuccess(false);
-                handleShow("Aviso", `${response.data.message}`, false);
-                return
-            }
+          
             if(response.status  === 200) {
+                setDescriptionModal(response.data.message)
                 setIsSuccess(true)
                 localStorage.setItem('userLoggedId', response.data.userLogado.id);
                 localStorage.setItem('userLoggedName', response.data.userLogado.name);
+                localStorage.setItem('userLoggedEmail', response.data.userLogado.email);
+                localStorage.setItem('userLoggedIsAdmin', response.data.userLogado.isadmin);
                 localStorage.setItem('userLoggedToken', response.data.token);
+                localStorage.setItem('userLoggedPassword', password);
                 handleShow("Aviso", `${response.data.message}`, true);
             }
 
         } catch (error) {
+            setDescriptionModal("E-mail ou senha incorreto");
             setIsSuccess(false);
             handleShow("Aviso", "E-mail ou senha incorreto!", false);
         }
