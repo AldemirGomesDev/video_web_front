@@ -8,7 +8,7 @@ import api from '../../services/api';
 
 import './styles.css';
 
-import logoImg from '../../assets/logo.svg'
+import logoImg from '../../assets/logo.png'
 
 export default function NewVideo({match}) {
     const [idVideo, setidVideo] = useState(0);
@@ -20,15 +20,22 @@ export default function NewVideo({match}) {
     const [descriptionModal, setDescriptionModal] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const [nameButton, setNameButton] = useState('Cadastrar');
 
     const [show, setShow] = useState(false);
 
     useEffect(() => {
         setidVideo(match.params.id)
+        if(match.params.id === "0") {
+            setNameButton("Cadastrar")
+        }else {
+            setNameButton("Atualizar")
+        }
         try {
-
-            api.get(`/users/${match.params.id}/videos`
+            
+            api.get(`/video/${match.params.id}`
             ).then(response => {
+                console.log(`handleEdit video ${response.data.video.name}`);
               if (response.data.video !== '' || response.data.video != null) {
                 setVideo(response.data.video);
                 setName(response.data.video.name);
@@ -82,11 +89,11 @@ export default function NewVideo({match}) {
             }
             setLoading(true);
             if(match.params.id === "0") {
-                const response = await api.post(`users/${userLoggedId}/videos`, data);
+                const response = await api.post(`video/${userLoggedId}`, data);
                 setIsSuccess(true);
                 handleShow("Alerta", `${response.data.message}`);
             } else {
-                const response = await api.put(`users/${match.params.id}/videos`, data);
+                const response = await api.put(`video/${match.params.id}`, data);
                 setIsSuccess(true);
                 handleShow("Alerta", `${response.data.message}`);
             }
@@ -103,7 +110,12 @@ export default function NewVideo({match}) {
                 <section>
                     <img src={logoImg} alt="logo video" />
 
-                <h1>Cadastrar novo vídeo</h1>
+                <h1>
+                    {nameButton === "Cadastrar" ?
+                        'Cadastrar novo vídeo' :
+                        'Atualizar seu vídeo'
+                    }
+                </h1>
 
                 </section>
 
@@ -132,7 +144,7 @@ export default function NewVideo({match}) {
                                 disableShrink={false}
                                 variant="indeterminate"
                                 size={30}
-                            /> : `Cadastrar`
+                            /> : `${nameButton}`
                         }
                     </button>
                     <Link className="back-link" to="/home">

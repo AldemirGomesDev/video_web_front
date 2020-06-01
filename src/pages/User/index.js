@@ -9,17 +9,24 @@ import { logout } from '../../services/auth';
 import User from '../../models/User';
 import './styles.css';
 
-import logoImg from '../../assets/logo.svg'
+import logoImg from '../../assets/logo.png'
 
 export default function Home() {
   const history = useHistory();
   const userLoggedName = localStorage.getItem('userLoggedName');
 
+  if(localStorage.getItem('userLoggedIsAdmin') === "false") {
+    history.push('/')
+}
+
   const [users, setUsers ] = useState([]);
   const [idUser, setUserId] = useState(0);
-  const [id, setId] = useState(0);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [idUserSelected, setUserIdSelected] = useState(0);
+  const [nameUserSelected, setNameUserSelected] = useState('');
+  const [emailUserSelected, setEmailUserSelected] = useState('');
+  const [nameUserLogged, setNameUserLogged] = useState('');
+  const [emailUserLogged, setEmailUserLogged] = useState('');
+  const [passwordUserLogged, setPasswordUserLogged] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
 
@@ -58,7 +65,7 @@ const handleShowModalUser = (title, description) => {
 };
 
 const handleDeleteShow = (title, description, user_id) => {
-    setId(user_id);
+    setUserIdSelected(user_id);
     setTitleModal(title)
     setDescriptionModal(description)
     setDeleteModalShow(true)
@@ -87,12 +94,30 @@ const handleDeleteClose = () => {
 
 const handleDeleteOk = () => {
     handleDeleteClose();
-    handleDeleteUser(id);
+    handleDeleteUser(idUserSelected);
 };
+
+const getUserSelect = async (id) => {
+    try {
+       const response = await api.get(`/user/${id}`);
+  
+        if(!response) {
+            return
+        }
+        console.log(`Usuario encontrado ${response.data.user.name}`);
+        setNameUserSelected(response.data.user.name);
+        setEmailUserSelected(response.data.user.email);
+        setUserIdSelected(response.data.user.id);
+        handleProfileShow()
+  
+    } catch (err) {
+        alert('Erro ao fazer logout, tente novamente');
+    }
+}
 
 async function handleLogout() {
   try {
-      const user = new User(name, email, password, false)
+      const user = new User(nameUserLogged, emailUserLogged, passwordUserLogged, false)
       logout()
       await api.post(`/users/${idUser}/logout`, user);
 
@@ -104,12 +129,12 @@ async function handleLogout() {
 }
 
 async function handleUpdate(e) {
-    e.preventDefault();
+     e.preventDefault();
 
-    const user = new User(name, email, password, true)
+    const user = new User(nameUserSelected, emailUserSelected, password, true)
 
     try {
-        if (name == "" || email == "" || password == "") {
+        if (nameUserSelected == "" || emailUserSelected == "" || password == "") {
             setIsSuccess(false);
             handleShowModalUser("Alerta", "Campos obrigatórios vazios");
             return
@@ -121,7 +146,12 @@ async function handleUpdate(e) {
             return
         }
         setLoading(true);
-        const response = await api.put(`users/${idUser}`, user);
+        console.log(`idUserSelected=> ${idUserSelected}`);
+        const response = await api.put(`users/${idUserSelected}`, user);
+        setPassword('');
+        setPasswordConfirm('');
+
+        setUsers(users);
 
         setIsSuccess(true);
         setModalProfileShow(false)
@@ -130,6 +160,8 @@ async function handleUpdate(e) {
 
     } catch (error) {
         setIsSuccess(false);
+        setPassword('');
+        setPasswordConfirm('');
         handleShowModalUser("Aviso", "Erro ao atualizar, tente novamente.");
     }
 }
@@ -149,10 +181,10 @@ useEffect(() => {
     setLoading(true);
     setIsFinish(false);
     setUserId(localStorage.getItem('userLoggedId'))
-    setName(localStorage.getItem('userLoggedName'));
-    setEmail(localStorage.getItem('userLoggedEmail'));
-    setPassword(localStorage.getItem('userLoggedPassword'));
-
+    setNameUserLogged(localStorage.getItem('userLoggedName'));
+    setEmailUserLogged(localStorage.getItem('userLoggedEmail'));
+    setPasswordUserLogged(localStorage.getItem('userLoggedPassword'));
+    
     api.get(`users/0/5`
     ).then(response => {
 
@@ -164,7 +196,7 @@ useEffect(() => {
 }, []);
 
   return (
-    <div className="home-container">
+    <div className="user-container">
       <header>
           <img className="logo" src={logoImg} alt="logo heroes" />
           <span>Bem vindo(a),<br/> {userLoggedName}</span>
@@ -179,41 +211,43 @@ useEffect(() => {
               <FiPower size={18} color="#E02041" />
           </button>
       </header>
-      <h2>Usuários</h2>
+      <div className="user-container-users">
+        <h2>Usuários</h2>
+        <ul>
+            {users.map(user => (
+                <li key={user.id}>
+                    <div className="text-video">
+                        <strong>Nome: {user.name}</strong>
+                        <p>Email: {user.email}</p>
+                        <p>{
+                            user.islogged ? 'Logado: Sim' : 'Logado: Não'
+                        }</p>
+                        <p>{
+                            user.isadmin ? 'Administrador' : 'Usuário Comum'
+                        }</p>
+                    </div>
 
-      <ul>
-          {users.map(user => (
-              <li key={user.id}>
-                  <div className="text-video">
-                      <strong>Nome: {user.name}</strong>
-                      <p>Email: {user.email}</p>
-                      <p>{
-                        user.islogged ? 'Logado: Sim' : 'Logado: Não'
-                      }</p>
-                  </div>
+                    <button className="button-edit" onClick={() => getUserSelect(user.id)} type="button">
+                        <FiEdit size={20} color="#a8a8b3" />
+                    </button>
 
-                  <button className="button-edit" onClick={() => handleProfileShow()} type="button">
-                      <FiEdit size={20} color="#a8a8b3" />
-                  </button>
-
-                  <button className="button-delete" onClick={() => handleDeleteShow("Alerta", "Deseja realmente apagar esse usuário?", user.id)} type="button">
-                      <FiTrash2 size={20} color="#a8a8b3" />
-                  </button>
-              </li>
-          ))}
-          <div className="circular-progress">
-              {isLoading ?
-                  <CircularProgress
-                      color="inherit"
-                      disableShrink={false}
-                      variant="indeterminate"
-                      size={30}
-                  /> : ''
-              }
-
-          </div>
-
-      </ul>
+                    <button className="button-delete" onClick={() => handleDeleteShow("Alerta", "Deseja realmente apagar esse usuário?", user.id)} type="button">
+                        <FiTrash2 size={20} color="#a8a8b3" />
+                    </button>
+                </li>
+            ))}
+            <div className="circular-progress">
+                {isLoading ?
+                    <CircularProgress
+                        color="inherit"
+                        disableShrink={false}
+                        variant="indeterminate"
+                        size={30}
+                    /> : ''
+                }
+            </div>
+        </ul>
+      </div>
 
       <Modal show={modalProfileShow} onHide={ProfileModalClose}>
                 <Modal.Header closeButton>
@@ -226,15 +260,14 @@ useEffect(() => {
                         <input
                             type="text"
                             placeholder="Nome"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
+                            value={nameUserSelected}
+                            onChange={e => setNameUserSelected(e.target.value)}
                         />
                         <input
                             placeholder="E-mail"
-                            value={email}
+                            value={emailUserSelected}
                             descriptionModal
-                            disabled={true}
-                            onChange={e => setEmail(e.target.value)}
+                            onChange={e => setEmailUserSelected(e.target.value)}
                         />
                         <input
                             required={true}

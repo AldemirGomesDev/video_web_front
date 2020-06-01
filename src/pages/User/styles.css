@@ -1,25 +1,25 @@
-.home-container {
+.user-container {
   width: 100%;
   max-width: 1180px;
   padding: 0 30px;
   margin: 32px auto;
 }
 
-.home-container header {
+.user-container header {
   display: flex;
   align-items: center;
 }
 
-.home-container header span {
+.user-container header span {
   font-size: 20px;
   margin-left: 24px;
 }
 
-.home-container header img {
+.user-container header img {
   height: 64px;
 }
 
-.home-container header a {
+.user-container header a {
   width: 260px;
   margin-left: auto;
   margin-top: 0;
@@ -47,13 +47,22 @@
   border-color: #999;
 }
 
-.home-container h2 {
+.user-container-users {
+  width: 100%;
+  max-width: 640px;
+  margin: 16px auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.user-container .user-container-users h2 {
   margin-top: 80px;
   margin-bottom: 24px;
   margin-left: 20px;
 }
 
-.home-container ul {
+.user-container .user-container-users ul {
   width: 100%;
   max-width: 640px;
   display: flex;
@@ -65,7 +74,7 @@
   margin-right: 20px;
 }
 
-.home-container ul li {
+.user-container .user-container-users ul li {
   display: flex;
   justify-content: stretch;
   background: #FFF;
@@ -108,21 +117,21 @@ form button:hover {
   border: 0;
 }
 
-.home-container ul li button:hover {
+.user-container .user-container-users ul li button:hover {
   opacity: 0.8;
 }
 
-.home-container ul li strong {
+.user-container .user-container-users ul li strong {
   display: block;
   margin-bottom: 16px;
   color: #42424d;
 }
 
-.home-container ul li p+strong {
+.user-container .user-container-users ul li p+strong {
   margin-top: 6px;
 }
 
-.home-container ul li p {
+.user-container .user-container-users ul li p {
   color: #737380;
   line-height: 4px;
   font-size: 16px;
@@ -168,4 +177,138 @@ form button:hover {
 .content form .bottom-modal button {
   width: 100%;
   margin-top: 20px;
+}
+
+@media screen and (min-width: 300px) and (orientation:portrait) {
+  .user-container .user-container-users h2 {
+    margin-top: 1px;
+    margin-bottom: 8px;
+    margin-left: 10px;
+  }
+
+  .user-container header .back-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    color: #41414d;
+  }
+
+  .user-container header {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    margin-left: 0;
+    align-items: center;
+  }
+  .botton-profile {
+    border-radius: 4px;
+    background: transparent;
+    margin-left: 16px;
+    position: relative;
+    left: 150px;
+    bottom: 57px;
+  }
+  .user-container header .button-logout {
+    height: 40px;
+    width: 40px;
+    border-radius: 4px;
+    border: 1px solid #dcdce6;
+    background: transparent;
+    transition: border-color 0.2s;
+    position: absolute;
+    right: 30px;
+    top: 40px;
+  }
+  .user-container header span {
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
+  .user-container header img {
+    margin-bottom: 24px;
+  }
+  .user-container header a {
+    width: 100%;
+    margin-left: auto;
+    margin-bottom: 24px;
+  }
+  .input-search {
+    width: 100%;
+    max-width: 640px;
+    height: 60px;
+    color: #333;
+    border: 1px solid #dcdce6;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 18px;
+    margin: 0px 0 20px 0;
+  }
+  .form-search {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    padding: 0;
+    justify-content: stretch;
+    text-align: center;
+    position: relative;
+    margin: 0 auto;
+  }
+  .user-container ul {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: left;
+    padding: 0 0;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  .user-container ul li {
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    flex-wrap: wrap;
+    margin: 0px 20px 0px -20px;
+  }
+  .user-container .home-container-videos ul li .react-player {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 300px;
+    max-height: 160px;
+    height: 100%;
+  }
+  .user-container ul li .text-video {
+    margin-left: 0px;
+    margin-top: 8px;
+    width: 100%;
+    max-width: 320px;
+    max-height: 180px;
+  }
+  .button-edit {
+    position: absolute;
+    background: transparent;
+    right: 40px;
+    top: 10px;
+    border: 0;
+  }
+  .button-delete {
+    position: absolute;
+    background: transparent;
+    right: 10px;
+    top: 10px;
+    border: 0;
+  }
+  .user-container .home-container-videos ul li strong {
+    display: block;
+    margin-left: 0px;
+    margin-bottom: 16px;
+    color: #42424d;
+    margin-top: 1px;
+  }
+
 }

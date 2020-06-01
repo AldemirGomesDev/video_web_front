@@ -12,7 +12,7 @@ import Admin from '../../models/Admin';
 import { isAuthenticated } from '../../services/auth';
 import './styles.css';
 
-import logoImg from '../../assets/logo.svg'
+import logoImg from '../../assets/logo.png'
 
 export default function Login() {
 
@@ -94,7 +94,7 @@ export default function Login() {
         } catch (error) {
             setDescriptionModal("E-mail ou senha incorreto");
             setIsSuccess(false);
-            handleShow("Aviso", "E-mail ou senha incorreto!", false);
+            handleShow("Aviso", "E-mail ou senha incorreto!" + error, false);
         }
     }
     return (

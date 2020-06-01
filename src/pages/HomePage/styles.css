@@ -3,11 +3,18 @@
     max-width: 1180px;
     padding: 0 30px;
     margin: 32px auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 
 .home-container header {
     display: flex;
     align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    margin-right: 30px;
+    margin-left: 30px;
 }
 
 .home-container header span {
@@ -20,7 +27,7 @@
 }
 
 .home-container header a {
-    width: 150px;
+    width: 260px;
     margin-left: auto;
     margin-top: 0;
 }
@@ -38,6 +45,7 @@
     line-height: 60px;
     font-weight: 700;
     transition: filter 0.2s;
+    margin-left: 10px;
 }
 .button {
     width: 100%;
@@ -55,6 +63,7 @@
     font-size: 18px;
     line-height: 60px;
     transition: filter 0.2s;
+    margin-right: 10px;
 }
 
 .button-user:hover {
@@ -87,13 +96,22 @@
     border-color: #999;
 }
 
-.home-container h2 {
+.home-container-videos {
+    width: 100%;
+    max-width: 640px;
+    margin: 16px auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.home-container .home-container-videos h2 {
     margin-top: 80px;
     margin-bottom: 24px;
     margin-left: 20px;
 }
 
-.home-container ul {
+.home-container .home-container-videos ul {
     width: 100%;
     max-width: 640px;
     display: flex;
@@ -105,7 +123,22 @@
     margin-right: 20px;
 }
 
-.home-container ul li {
+.home-container ul span {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    list-style: none;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    color: #E02041;
+    font-weight: 500;
+}
+
+.home-container .home-container-videos ul li {
     display: flex;
     justify-content: stretch;
     background: #FFF;
@@ -116,25 +149,27 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.home-container ul li button:hover {
+.home-container .home-container-videos ul li button:hover {
     opacity: 0.8;
 }
 
-.home-container ul li strong {
+.home-container .home-container-videos ul li strong {
     display: block;
+    margin-left: 16px;
     margin-bottom: 16px;
     color: #42424d;
     margin-top: 16px;
 }
 
-.home-container ul li p+strong {
+.home-container .home-container-videos ul li p+strong {
     margin-top: 32px;
 }
 
-.home-container ul li span {
+.home-container .home-container-videos ul li span {
     color: #737380;
     line-height: 21px;
     font-size: 12px;
+    padding-right: 16px;
 }
 
 .form-search {
@@ -202,7 +237,7 @@ form button:hover {
     margin-top: 2px;
 }
 
-.home-container ul li .react-player {
+.home-container .home-container-videos ul li .react-player {
     margin-top: 20px;
     margin-bottom: 20px;
     width: 100%;
@@ -211,9 +246,8 @@ form button:hover {
     height: 100%;
 }
 
-.home-container ul li .text-video {
-    margin-left: 30px;
-    margin-top: 18px;
+.home-container .home-container-videos ul li .text-video {
+    margin-top: 8px;
 }
 
 .button-edit {
@@ -280,6 +314,8 @@ form button:hover {
         justify-content: center;
         margin-left: 0;
         align-items: center;
+        margin-right: 0px;
+        margin-left: 0px;
     }
     .home-container header .button-logout {
         height: 40px;
@@ -295,7 +331,7 @@ form button:hover {
     }
     .home-container header span {
         font-size: 20px;
-        margin-bottom: 24px;
+        margin-bottom: -4px;
     }
     .home-container header img {
         margin-bottom: 24px;
@@ -304,6 +340,14 @@ form button:hover {
         width: 100%;
         margin-left: auto;
         margin-bottom: 24px;
+    }
+    .botton-profile {
+        border-radius: 4px;
+        background: transparent;
+        margin-left: 16px;
+        position: relative;
+        left: 150px;
+        bottom: 40px;
     }
     .button {
         width: 100%;
@@ -321,10 +365,11 @@ form button:hover {
         font-size: 18px;
         line-height: 60px;
         transition: filter 0.2s;
+        margin-right: 0;
     }
-    .home-container h2 {
+    .home-container .home-container-videos h2 {
         margin-top: 4px;
-        margin-bottom: 24px;
+        margin-bottom: 8px;
         margin-left: 0;
     }
     .input-search {
@@ -348,46 +393,57 @@ form button:hover {
         position: relative;
         margin: 0 auto;
     }
-    .home-container ul {
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
-        justify-content: left;
-        padding: 0 0;
-        margin: 0px 0 20px 0;
+
+    .home-container .home-container-videos ul li .button-edit {
+        position: absolute;
+        background: transparent;
+        right: 40px;
+        top: 10px;
+        border: 0;
     }
-    .home-container ul li {
-        width: 100%;
-        max-width: 350px;
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
-        justify-content: left;
-        margin: 0px 0 20px 0;
-    }
-    .home-container ul li .react-player {
-        margin-top: 16px;
-        margin-bottom: 10px;
-        width: 100%;
-        max-width: 300px;
-        max-height: 160px;
-        height: 100%;
-    }
-    .home-container ul li .text-video {
-        margin-left: 0px;
-        margin-top: 8px;
-        width: 100%;
-        max-width: 320px;
-        max-height: 180px;
-    }
-    .home-container ul li button {
+    .home-container .home-container-videos ul li .button-delete {
         position: absolute;
         background: transparent;
         right: 10px;
         top: 10px;
         border: 0;
     }
-    .home-container ul li strong {
+
+    .home-container .home-container-videos ul {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: left;
+        padding: 0 0;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+    .home-container .home-container-videos ul li {
+        width: 100%;
+        max-width: 350px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-content: center;
+        flex-wrap: wrap;
+        margin: 0px 20px 20px -20px;
+    }
+    .home-container .home-container-videos ul li .react-player {
+        margin-top: 30px;
+        margin-bottom: 10px;
+        width: 100%;
+        max-width: 300px;
+        max-height: 160px;
+        height: 100%;
+    }
+    .home-container .home-container-videos ul li .text-video {
+        margin-left: 0px;
+        margin-top: 8px;
+        width: 100%;
+        max-width: 320px;
+        max-height: 180px;
+    }
+    .home-container .home-container-videos ul li strong {
         display: block;
         margin-bottom: 16px;
         color: #42424d;
@@ -406,16 +462,19 @@ form button:hover {
         flex-direction: column;
         flex-wrap: wrap;
         justify-content: center;
+        align-content: center;
         margin-left: 0;
         align-items: center;
+        margin-right: 0px;
+        margin-left: 0px;
     }
-    .botton-profile {
+    .home-container header .botton-profile {
         border-radius: 4px;
         background: transparent;
         margin-left: 16px;
         position: relative;
         left: 150px;
-        bottom: 57px;
+        bottom: 40px;
     }
     .home-container header .button-logout {
         height: 40px;
@@ -428,9 +487,15 @@ form button:hover {
         right: 30px;
         top: 40px;
     }
+    .button-user {
+        margin-left: 0;
+    }
+    .button {
+        margin-right: 0;
+    }
     .home-container header span {
         font-size: 20px;
-        margin-bottom: 24px;
+        margin-bottom: -4px;
     }
     .home-container header img {
         margin-bottom: 24px;
@@ -441,9 +506,9 @@ form button:hover {
         margin-bottom: 24px;
     }
     
-    .home-container h2 {
+    .home-container .home-container-videos h2  {
         margin-top: 4px;
-        margin-bottom: 24px;
+        margin-bottom: 8px;
         margin-left: 0;
     }
     .input-search {
@@ -467,25 +532,27 @@ form button:hover {
         position: relative;
         margin: 0 auto;
     }
-    .home-container ul {
+    .home-container .home-container-videos ul {
         display: flex;
         flex-direction: column;
         flex-wrap: wrap;
         justify-content: left;
         padding: 0 0;
-        margin: 0px 0 20px 0;
+        margin-left: 20px;
+        margin-right: 20px;
     }
-    .home-container ul li {
+    .home-container .home-container-videos ul li {
         width: 100%;
         max-width: 350px;
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        align-content: center;
         flex-wrap: wrap;
-        justify-content: left;
-        margin: 0px 0 20px 0;
+        margin: 0px 20px 20px -20px;
     }
-    .home-container ul li .react-player {
-        margin-top: 16px;
+    .home-container .home-container-videos ul li .react-player {
+        margin-top: 30px;
         margin-bottom: 10px;
         width: 100%;
         max-width: 300px;
@@ -513,8 +580,9 @@ form button:hover {
         top: 10px;
         border: 0;
     }
-    .home-container ul li strong {
+    .home-container .home-container-videos ul li strong {
         display: block;
+        margin-left: 0px;
         margin-bottom: 16px;
         color: #42424d;
         margin-top: 1px;

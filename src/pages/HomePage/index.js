@@ -10,7 +10,7 @@ import { logout } from '../../services/auth';
 import User from '../../models/User';
 import './styles.css';
 
-import logoImg from '../../assets/logo.svg'
+import logoImg from '../../assets/logo.png'
 
 export default function Home() {
     const [videos, setVideos] = useState([]);
@@ -22,6 +22,7 @@ export default function Home() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [passwordUserLogged, setPasswordUserLogged] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
 
@@ -37,6 +38,7 @@ export default function Home() {
     const [logoutModalShow, setLogoutModalShow] = useState(false);
     const [deleteModalShow, setDeleteModalShow] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const [isNetWorkError, setIsNetWorkError] = useState(false);
 
     const [modalProfileShow, setModalProfileShow] = useState(false);
 
@@ -55,7 +57,8 @@ export default function Home() {
         setLogoutModalShow(true)
     };
 
-    const handleDeleteShow = (title, description) => {
+    const handleDeleteShow = (title, description, video_id) => {
+        setId(video_id);
         setTitleModal(title)
         setDescriptionModal(description)
         setDeleteModalShow(true)
@@ -95,16 +98,10 @@ export default function Home() {
         setShow(false)
         setShowModalUser(false)
     };
-    const handleShow = (title, description, video_id) => {
+    const handleShow = (title, description) => {
         setTitleModal(title)
         setDescriptionModal(description)
-        setId(video_id);
         setShow(true)
-        if (video_id !== 0) {
-            setIsSuccess(true);
-        } else {
-            setIsSuccess(false);
-        }
     };
 
     const handleShowModalUser = (title, description) => {
@@ -118,68 +115,82 @@ export default function Home() {
     const handleSearch = (e) => {
         e.preventDefault();
         setLoading(true);
+        setIsFinish(false);
 
         const name = `${search}`;
+        console.log(`useEffect scroll: handleSearch=> ${currentPage}`);
 
-        api.get(`users/${userLoggedId}/search/0/5`, {
-            params: {
-                name: name
-            }
-        }).then(response => {
-            console.log(`quantidade ${response.data.page}`);
-            setVideos(response.data.videos);
+        try{
+            api.get(`video/search/0/5`, {
+                params: {
+                    name: name
+                }
+            }).then(response => {
+                setLoading(false);
+                setIsNetWorkError(false);
+                console.log(`quantidade ${response.data.page}`);
+                setVideos(response.data.videos);
+                setCurrentPage(response.data.currentPage);
+            }).catch(function(error) {
+                console.log(error);
+                setIsNetWorkError(true);
+                setLoading(false);
+              });
+        }catch(e){
             setLoading(false);
-            setIsFinish(true);
-        });
+        }
+
     };
 
     const history = useHistory();
 
-    const userLoggedId = localStorage.getItem('userLoggedId');
-    const userLoggedName = localStorage.getItem('userLoggedName');
-    const userLoggedToken = localStorage.getItem('userLoggedToken');
-
     useEffect(() => {
-        setLoading(true);
-        setIsFinish(false);
+        console.log(`useEffect scroll: initial=> ${currentPage}`);
+        intersectionOberver.observe(scrollObserve.current);
+
         setUserId(localStorage.getItem('userLoggedId'))
         setName(localStorage.getItem('userLoggedName'));
         setEmail(localStorage.getItem('userLoggedEmail'));
         setIsAdmin(localStorage.getItem('userLoggedIsAdmin'));
-        intersectionOberver.observe(scrollObserve.current);
-
-        api.get(`users/${userLoggedId}/videos/${currentPage}/5`
-        ).then(response => {
-
-            setPage(response.data.page);
-            setVideos(response.data.videos);
-            setCurrentPage(response.data.currentPage);
-            setLoading(false);
-        });
+        setPasswordUserLogged(localStorage.getItem('userLoggedPassword'));
+        
         return () => {
             intersectionOberver.disconnect();
         }
-    }, [userLoggedToken]);
+    }, []);
 
     useEffect(() => {
-        console.log(`search: ${search}`);
-        if (scrollRadio > 0 && videos != "" && !isFinish) {
+        console.log(`useEffect scroll: radio=> ${scrollRadio}`);
+        if (scrollRadio > 0 && !isFinish ) {
+            console.log(`useEffect scroll: ${currentPage} videos: ${videos.length}`);
             setLoading(true);
-            api.get(`users/${userLoggedId}/videos/${currentPage}/5`
-            ).then(response => {
-                const novosVideos = [...videos];
-                novosVideos.push(...response.data.videos);
-                setVideos(novosVideos);
-                setCurrentPage(response.data.currentPage);
+            try{
+                api.get(`video/search/${currentPage}/5`, {
+                    params: {
+                        name: search
+                    }
+                }).then(response => {
+                    setLoading(false);
+                    setIsNetWorkError(false);
+                    const novosVideos = [...videos];
+                    novosVideos.push(...response.data.videos);
+                    setVideos(novosVideos);
+                    setCurrentPage(response.data.currentPage);
+    
+                    if (response.data.videos.length === 0) {
+                        setIsFinish(true);
+                        console.log(`useEffect scroll: finalizou a busca ${response.data.videos.length}`);
+                    }
+                }).catch(function(error) {
+                    console.log(error);
+                    setIsNetWorkError(true);
+                    setLoading(false);
+                  });
+            }catch(e){
                 setLoading(false);
-
-                if (response.data.videos == '' || response.data.videos == null) {
-                    setIsFinish(true);
-                    console.log('finalizou a busca')
-                }
-            });
+            }
         }
-    }, [currentPage, isFinish, scrollRadio, search, userLoggedId, videos]);
+    }, [scrollRadio]);
 
     const intersectionOberver = new IntersectionObserver((entries) => {
         const radio = entries[0].intersectionRatio;
@@ -217,10 +228,12 @@ export default function Home() {
         }
     }
 
-    function handleLogout() {
+    async function handleLogout() {
         try {
             console.log("fazendo logout");
+            const user = new User(name, email, passwordUserLogged, false)
             logout()
+            await api.post(`/users/${idUser}/logout`, user);
             history.push('/')
 
         } catch (err) {
@@ -230,25 +243,26 @@ export default function Home() {
 
     async function handleDelete(id) {
         try {
-            await api.delete(`/users/${id}/videos`);
+            await api.delete(`/video/${id}`);
 
             setVideos(videos.filter(video => video.id !== id));
 
         } catch (err) {
             setIsSuccess(false);
-            handleShow("Alerta", "Erro ao apagar vídeo!", 0);
+            handleShow("Alerta", "Erro ao apagar vídeo!");
         }
     }
 
     async function handleEdit(id) {
         history.push(`/video/${id}`)
+        console.log(`handleEdit video ${id}`);
     }
 
     return (
         <div className="home-container">
             <header>
                 <img className="logo" src={logoImg} alt="logo heroes" />
-                <span>Bem vindo(a), <br/> {userLoggedName}</span>
+                <span>Bem vindo(a), <br/> {name}</span>
                 <button className="botton-profile" onClick={() => handleProfileShow()} type="button">
                     <FiEdit size={20} color="#a8a8b3" />
                 </button>
@@ -264,58 +278,60 @@ export default function Home() {
                     <FiPower size={18} color="#E02041" />
                 </button>
             </header>
-            <h2>Vídeos disponíveis</h2>
+            <div className="home-container-videos">
+                <h2>Vídeos disponíveis</h2>
+                <form onSubmit={handleSearch} className="form-search">
+                    <input
+                        className="input-search"
+                        type="text"
+                        placeholder="Procurar"
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                    />
 
-            <form onSubmit={handleSearch} className="form-search">
-                <input
-                    className="input-search"
-                    type="text"
-                    placeholder="Procurar"
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                />
+                    <button type="submit">
+                        <FiSearch size={24} color="#333333" />
+                    </button>
+                </form>
+                <ul>
+                    {videos.map(video => (
+                        <li key={video.id}>
+                            <ReactPlayer className="react-player"
+                                url={video.url}
+                                controls={true} />
 
-                <button type="submit">
-                    <FiSearch size={24} color="#333333" />
-                </button>
+                            <div className="text-video">
+                                <strong>{video.name}</strong>
+                                <span>{video.description}</span>
+                            </div>
 
-            </form>
+                            <button className="button-edit" onClick={() => handleEdit(video.id)} type="button">
+                                <FiEdit size={20} color="#a8a8b3" />
+                            </button>
 
-            <ul>
-                {videos.map(video => (
-                    <li key={video.id}>
-                        <ReactPlayer className="react-player"
-                            url={video.url}
-                            controls={true} />
-
-                        <div className="text-video">
-                            <strong>{video.name}</strong>
-                            <span>{video.description}</span>
-                        </div>
-
-                        <button className="button-edit" onClick={() => handleEdit(video.id)} type="button">
-                            <FiEdit size={20} color="#a8a8b3" />
-                        </button>
-
-                        <button className="button-delete" onClick={() => handleDeleteShow("Aviso", "Deseja realmente apagar esse vídeo?", video.id)} type="button">
-                            <FiTrash2 size={20} color="#a8a8b3" />
-                        </button>
-                    </li>
-                ))}
-                <div className="circular-progress">
-                    {isLoading ?
-                        <CircularProgress
-                            color="inherit"
-                            disableShrink={false}
-                            variant="indeterminate"
-                            size={30}
-                        /> : ''
+                            <button className="button-delete" onClick={() => handleDeleteShow("Aviso", "Deseja realmente apagar esse vídeo?", video.id)} type="button">
+                                <FiTrash2 size={20} color="#a8a8b3" />
+                            </button>
+                        </li>
+                    ))}
+                    {isNetWorkError ?
+                        <span>Falha na conexão com o servidor</span> : ''  
                     }
+                    <div className="circular-progress">
+                        {isLoading ?
+                            <CircularProgress
+                                color="inherit"
+                                disableShrink={false}
+                                variant="indeterminate"
+                                size={30}
+                            /> : ''
+                        }
 
-                </div>
+                    </div>
 
-            </ul>
-            <div ref={scrollObserve}></div>
+                </ul>
+                <div ref={scrollObserve}></div>
+            </div>
 
             <Modal show={modalProfileShow} onHide={ProfileModalClose}>
                 <Modal.Header closeButton>
