@@ -7,6 +7,7 @@ import Modal from 'react-bootstrap/Modal';
 import api from '../../services/api';
 import { logout } from '../../services/auth';
 import User from '../../models/User';
+import Admin from '../../models/Admin';
 import './styles.css';
 
 import logoImg from '../../assets/logo.png'
@@ -29,6 +30,13 @@ export default function Home() {
   const [passwordUserLogged, setPasswordUserLogged] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  //validate admin
+  const [registration, setRegistration] = useState();
+  const [enableInput, setEnableInput] = useState(true);
+  const [isValidate, setIsValidate] = useState(false);
+  const [validateShow, setValidateShow] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [validateAdmin, setValidateAdmin] = useState('');
 
   const [titleModal, setTitleModal] = useState('');
   const [descriptionModal, setDescriptionModal] = useState('');
@@ -40,6 +48,14 @@ export default function Home() {
   const [isLoading, setLoading] = useState(false);
   const [isFinish, setIsFinish] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [show, setShow] = useState(false);
+
+  function handleInputChange(event) {
+    setValidateShow(true);
+    const target = event.target;
+    const value = target.name === 'isadmin' ? target.checked : target.value;
+    setIsAdmin(value)
+}
 
   const handleLogoutOk = () => {
     setLogoutModalShow(false);
@@ -75,6 +91,10 @@ const handleProfileShow = () => {
     setModalProfileShow(true)
 }
 
+const validateShowClose = () => {
+    setValidateShow(false);
+}
+
 const ProfileModalClose = () => {
     setModalProfileShow(false)
 }
@@ -90,6 +110,19 @@ const handleCloseModalUser = () => {
 
 const handleDeleteClose = () => {
     setDeleteModalShow(false)
+};
+
+const handleShow = (title, description) => {
+    setTitleModal(title)
+    setDescriptionModal(description)
+    setShow(true)
+};
+
+const handleClose = () => {
+    setShow(false)
+    setLoading(false);
+    if (isSuccess)
+        history.push('/');
 };
 
 const handleDeleteOk = () => {
@@ -108,9 +141,19 @@ const getUserSelect = async (id) => {
         setNameUserSelected(response.data.user.name);
         setEmailUserSelected(response.data.user.email);
         setUserIdSelected(response.data.user.id);
+        setIsValidate(response.data.user.isadmin);
+        if(response.data.user.isadmin){
+            setRegistration(response.data.user.registration);
+            setEnableInput(false);
+        }else{
+            setRegistration('')
+            setEnableInput(true);
+        }
+
         handleProfileShow()
   
     } catch (err) {
+        handleLogout()
         alert('Erro ao fazer logout, tente novamente');
     }
 }
@@ -131,8 +174,16 @@ async function handleLogout() {
 async function handleUpdate(e) {
      e.preventDefault();
 
-    const user = new User(nameUserSelected, emailUserSelected, password, true)
-
+    let data = {}
+    const user = new User(nameUserSelected, emailUserSelected, password, false, isAdmin);
+    const admin = new Admin(nameUserSelected, emailUserSelected, password, false, isAdmin, registration);
+    
+    if(isAdmin) {
+        data = admin
+    }else {
+        data = user
+    }
+   
     try {
         if (nameUserSelected == "" || emailUserSelected == "" || password == "") {
             setIsSuccess(false);
@@ -147,7 +198,7 @@ async function handleUpdate(e) {
         }
         setLoading(true);
         console.log(`idUserSelected=> ${idUserSelected}`);
-        const response = await api.put(`users/${idUserSelected}`, user);
+        const response = await api.put(`users/${idUserSelected}`, data);
         setPassword('');
         setPasswordConfirm('');
 
@@ -163,6 +214,7 @@ async function handleUpdate(e) {
         setPassword('');
         setPasswordConfirm('');
         handleShowModalUser("Aviso", "Erro ao atualizar, tente novamente.");
+        handleLogout()
     }
 }
 
@@ -174,6 +226,7 @@ async function handleDeleteUser(id) {
 
     } catch (err) {
         // handleShow("Alerta", "Erro ao apagar usuário!", 0);
+        handleLogout()
     }
 }
 
@@ -185,15 +238,58 @@ useEffect(() => {
     setEmailUserLogged(localStorage.getItem('userLoggedEmail'));
     setPasswordUserLogged(localStorage.getItem('userLoggedPassword'));
     
-    api.get(`users/0/5`
+    api.get(`users/0/50`
     ).then(response => {
+        setLoading(false);
 
-      setUsers(response.data.user);
-    
-      setLoading(false);
-    });
+        if(response.status === 200){
+            setUsers(response.data.user);
+        }else {
+            handleLogout()
+        }
+    }).catch(function(error) {
+        setLoading(false);
+        handleLogout()
+      });
  
 }, []);
+
+const handleValidateAdmin = () => {
+    try{
+        if(!validateAdmin) {
+            handleShow('Alerta', 'Digite sua matrícula para continuar!')
+            return 
+        }
+        api.get(`user/admin/${validateAdmin}`)
+        .then(response => {
+            console.log(`quantidade ${response.status}`);
+            if(response.status === 200) {
+                if(isAdmin) {
+                    setEnableInput(false) 
+                    setIsValidate(true)
+                }else {
+                    setEnableInput(true)
+                    setIsValidate(false)
+                }
+                setValidateShow(false);
+                setValidateAdmin('')
+                setLoading(false);
+            }else {
+                setValidateAdmin('')
+                handleShow('Alerta', 'Você não tem permissão de Administrador!')
+                setLoading(false); 
+            }
+        }).catch(function(error) {
+            setValidateAdmin('')
+            handleShow('Alerta', 'Você não tem permissão de Administrador!')
+            setLoading(false);
+            handleLogout()
+          });
+    }catch(e){
+        handleLogout()
+        setLoading(false);
+    }
+}
 
   return (
     <div className="user-container">
@@ -268,6 +364,22 @@ useEffect(() => {
                             value={emailUserSelected}
                             descriptionModal
                             onChange={e => setEmailUserSelected(e.target.value)}
+                        />
+                        <div className="checkbox">
+                            <label>
+                                Administrador:
+                            </label>
+                            <input
+                                name="isadmin"
+                                type="checkbox"
+                                checked={isValidate}
+                                onChange={e => handleInputChange(e)} />
+                        </div>
+                        <input
+                            disabled={enableInput}
+                            placeholder="Matrícula"
+                            value={registration}
+                            onChange={e => setRegistration(e.target.value)}
                         />
                         <input
                             required={true}
@@ -352,6 +464,38 @@ useEffect(() => {
               <button onClick={handleLogoutOk} className="btn btn-danger">OK</button>
           </Modal.Footer>
       </Modal>
+      <Modal show={validateShow} onHide={validateShowClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{titleModal}</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                <input
+                    className="modal-validate"
+                    type="text"
+                    placeholder="Matrícula"
+                    value={validateAdmin}
+                    onChange={e => setValidateAdmin(e.target.value)}
+                />
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <button onClick={handleValidateAdmin} className="btn btn-danger">Validar</button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{titleModal}</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <p>{descriptionModal}</p>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <button onClick={handleClose} className="btn btn-danger">OK</button>
+                </Modal.Footer>
+            </Modal>
     </div>
   )
 }

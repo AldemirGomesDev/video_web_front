@@ -133,11 +133,13 @@ export default function Home() {
                 setCurrentPage(response.data.currentPage);
             }).catch(function(error) {
                 console.log(error);
+                handleLogout()
                 setIsNetWorkError(true);
                 setLoading(false);
               });
         }catch(e){
             setLoading(false);
+            handleLogout()
         }
 
     };
@@ -184,9 +186,11 @@ export default function Home() {
                 }).catch(function(error) {
                     console.log(error);
                     setIsNetWorkError(true);
+                    handleLogout()
                     setLoading(false);
                   });
             }catch(e){
+                handleLogout()
                 setLoading(false);
             }
         }
@@ -200,8 +204,8 @@ export default function Home() {
     async function handleUpdate(e) {
         e.preventDefault();
 
-        const user = new User(name, email, password, true)
-
+        const user = new User(name, email, password, true, isAdmin);
+    
         try {
             if (name == "" || email == "" || password == "") {
                 setIsSuccess(false);
@@ -216,22 +220,45 @@ export default function Home() {
             }
             setLoading(true);
             const response = await api.put(`users/${idUser}`, user);
-
+            
             setIsSuccess(true);
             setModalProfileShow(false)
             handleShowModalUser("Aviso", `${response.data.message}`);
 
+            getUserSelect(idUser, false)
+
 
         } catch (error) {
+            handleLogout()
             setIsSuccess(false);
             handleShowModalUser("Aviso", "Erro ao atualizar, tente novamente.");
         }
     }
 
+    async function getUserSelect(id, isUpdate){
+        try {
+           const response = await api.get(`/user/${id}`);
+      
+            if(!response) {
+                return
+            }
+            console.log(`Usuario encontrado ${response.data.user.name}`);
+            setName(response.data.user.name);
+            setEmail(response.data.user.email);
+            setPasswordUserLogged(password)
+            if(isUpdate) {
+                handleProfileShow()
+            }
+      
+        } catch (err) {
+            handleLogout()
+            alert('Erro ao fazer logout, tente novamente');
+        }
+    }
+
     async function handleLogout() {
         try {
-            console.log("fazendo logout");
-            const user = new User(name, email, passwordUserLogged, false)
+            const user = new User(name, email, passwordUserLogged, false, isAdmin);
             logout()
             await api.post(`/users/${idUser}/logout`, user);
             history.push('/')
